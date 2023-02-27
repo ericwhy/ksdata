@@ -14,7 +14,7 @@
         <Relation Name="UserRoles" TargetObject="KsUserRole" Type="ToMany">
             <KeyMap SourceProperty="KsUserId" TargetProperty="KsUserId" />
         </Relation>
-        <Relation Name="UserToken" TargetObject="KsUserToken" Type="Reference">
+        <Relation Name="UserToken" TargetObject="KsUserToken" Type="ToOne">
             <ObjectKeyMap SourceProperty="KsUserId" TargetProperty="KsUserId" />
         </Relation>
       </Relations>
@@ -89,7 +89,7 @@
       <Data Table="ks_user_token">
       </Data>
       <Relations>
-        <Relation Name="KsUser_KsUserToken_FK" ReferenceDomain="KSUser" ReferenceObject="KsUser" Type="Foreign">
+        <Relation Name="KsUser_KsUserToken_FK" ReferenceDomain="KSUser" ReferenceObject="KsUser" Type="ToOwner" Cardinality="OneToOne">
             <KeyMap Property="KsUserId" ReferenceProperty="KsUserId" />
         </Relation>
       </Relations>
