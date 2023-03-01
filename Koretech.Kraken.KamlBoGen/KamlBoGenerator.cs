@@ -5,6 +5,8 @@ namespace Koretech.Kraken.Kaml {
         public KamlBoGen() { }
         public FileInfo SourceKamlBo {get;set;}
         public DirectoryInfo OutputRoot {get;set;}
+        public string RootNamespace {get;set;}
+        public bool EntityAnnotations {get;set;}
         private List<string> entities = new();
 
         private const string entitiesPath = "Entities";
@@ -19,6 +21,8 @@ namespace Koretech.Kraken.Kaml {
         private const string IntegerType = "integer";
         private const string UniqueIdentifierType = "uniqueidentifier";
         private const string BytesType = "bytes";
+
+        private const string ToManyRelationType = "ToMany";
 
         private const string ObjectNameDef = "DefaultObjectName";
 
@@ -54,7 +58,7 @@ namespace Koretech.Kraken.Kaml {
             writer.WriteLine("//");
             writer.WriteLine("// Created by Kraken KAML BO Generator");
             writer.WriteLine("//");
-            writer.WriteLine("namespace Koretech.Kraken.Data");
+            writer.WriteLine($"namespace {RootNamespace}");
             writer.WriteLine("{");
             writer.WriteLine($"\tpublic class {objectName}Entity");
             writer.WriteLine("\t{");
@@ -97,7 +101,23 @@ namespace Koretech.Kraken.Kaml {
                 }
             }
             // Relations
-            
+            var relationsEl = businessObjectEl.Element("Relations");
+            if (relationsEl != null)
+            {
+                foreach(var relationEl in relationsEl.Elements())
+                {
+                    // Get the cardinality
+                    string? relationType = relationEl.Attribute("Type")?.Value;
+                    if(string.Equals(relationType, ToManyRelationType, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        WriteToManyRelationType(relationEl, writer);
+                    }
+                    else
+                    {
+                        WriteToSingleRelationType(relationEl, writer);
+                    }
+                }
+            }
 
             writer.WriteLine("\t}");
             writer.WriteLine("}");
@@ -182,6 +202,27 @@ namespace Koretech.Kraken.Kaml {
                 writer.Write($" = new byte[{getElementSize(propertyEl)}];");
             }   
             writer.WriteLine();
+        }
+
+        private void WriteToManyRelationType(XElement relationEl, StreamWriter writer)
+        {
+            // Get the type
+            string? type = relationEl.Attribute("TargetObject")?.Value;
+            // And name
+            string? name = relationEl.Attribute("Name")?.Value;
+            writer.Write($"\t\tpublic IList<{type}Entity> {name} {{get; set;}} = new List<{type}Entity>;");
+            writer.WriteLine();
+        }
+
+        private void WriteToSingleRelationType(XElement relationEl, StreamWriter writer)
+        {
+            // Get the type
+            string? type = relationEl.Attribute("TargetObject")?.Value;
+            // And name
+            string? name = relationEl.Attribute("Name")?.Value;
+            writer.Write($"\t\tpublic {type}Entity {name} {{get; set;}}");
+            writer.WriteLine();
+
         }
 
     }

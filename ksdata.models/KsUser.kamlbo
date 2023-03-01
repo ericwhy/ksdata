@@ -89,8 +89,8 @@
       <Data Table="ks_user_token">
       </Data>
       <Relations>
-        <Relation Name="KsUser_KsUserToken_FK" ReferenceDomain="KSUser" ReferenceObject="KsUser" Type="ToOwner" Cardinality="OneToOne">
-            <KeyMap Property="KsUserId" ReferenceProperty="KsUserId" />
+        <Relation Name="User" TargetObject="KsUser" Type="ToOwner" Cardinality="OneToOne">
+            <KeyMap SourceProperty="KsUserId" TargetProperty="KsUserId" />
         </Relation>
       </Relations>
       <Properties>
